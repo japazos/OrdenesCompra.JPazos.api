@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using OrdenesCompra.JPazos.FrontEnd.Services
+@using OrdenesCompra.JPazos.FrontEnd.Dto
 @inject SecurityService SecurityService
 
 <h3>Ingrese al Sistema</h3>
@@ -24,7 +25,13 @@
 
     private async Task SignIn()
     {
-        var result = await SecurityService.SignIn(Email, Password);
+        var signInDto = new SignInDto
+            {
+                Email = Email,
+                Password = Password
+            };
+
+        var result = await SecurityService.SignIn(signInDto);
         if (!result)
         {
             Console.WriteLine("Error al iniciar sesión");
