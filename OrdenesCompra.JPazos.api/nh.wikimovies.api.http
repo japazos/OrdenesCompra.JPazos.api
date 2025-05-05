@@ -1,0 +1,6 @@
+@ordenesCompra.JPazos.api_HostAddress = http://localhost:5118
+
+GET {{ordenesCompra.JPazos.api_HostAddress}}/api/home/getMessage
+Accept: application/json
+
+###

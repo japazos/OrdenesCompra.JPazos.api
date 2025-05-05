@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35013.160
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrdenesCompra.JPazos.application", "OrdenesCompra.JPazos.application\OrdenesCompra.JPazos.application.csproj", "{2259516B-3392-4363-9222-8B640CD760FD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrdenesCompra.JPazos.domain", "OrdenesCompra.JPazos.domain\OrdenesCompra.JPazos.domain.csproj", "{CA0AD31E-8D31-4177-BF1E-87EB1F6A0DBA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrdenesCompra.JPazos.infrastructure", "OrdenesCompra.JPazos.infrastructure\OrdenesCompra.JPazos.infrastructure.csproj", "{F800409B-BA1F-4684-8AB2-58CE935478E5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrdenesCompra.JPazos.api", "OrdenesCompra.JPazos.api\OrdenesCompra.JPazos.api.csproj", "{94471255-A6F9-41F2-A194-DAF337160162}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrdenesCompra.JPazos.Tests", "OrdenesCompra.JPazos.Tests\OrdenesCompra.JPazos.Tests.csproj", "{7423FF27-F710-4C1C-92F7-E0C9A63AE9A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrdenesCompra.JPazos.FrontEnd", "OrdenesCompra.JPazos.FrontEnd\OrdenesCompra.JPazos.FrontEnd.csproj", "{A2DED594-7D1D-47A3-A65A-92757695769D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2259516B-3392-4363-9222-8B640CD760FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2259516B-3392-4363-9222-8B640CD760FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2259516B-3392-4363-9222-8B640CD760FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2259516B-3392-4363-9222-8B640CD760FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA0AD31E-8D31-4177-BF1E-87EB1F6A0DBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA0AD31E-8D31-4177-BF1E-87EB1F6A0DBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA0AD31E-8D31-4177-BF1E-87EB1F6A0DBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA0AD31E-8D31-4177-BF1E-87EB1F6A0DBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F800409B-BA1F-4684-8AB2-58CE935478E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F800409B-BA1F-4684-8AB2-58CE935478E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F800409B-BA1F-4684-8AB2-58CE935478E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F800409B-BA1F-4684-8AB2-58CE935478E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94471255-A6F9-41F2-A194-DAF337160162}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94471255-A6F9-41F2-A194-DAF337160162}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94471255-A6F9-41F2-A194-DAF337160162}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94471255-A6F9-41F2-A194-DAF337160162}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7423FF27-F710-4C1C-92F7-E0C9A63AE9A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7423FF27-F710-4C1C-92F7-E0C9A63AE9A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7423FF27-F710-4C1C-92F7-E0C9A63AE9A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7423FF27-F710-4C1C-92F7-E0C9A63AE9A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2DED594-7D1D-47A3-A65A-92757695769D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2DED594-7D1D-47A3-A65A-92757695769D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2DED594-7D1D-47A3-A65A-92757695769D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2DED594-7D1D-47A3-A65A-92757695769D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A7323369-B89C-4886-88F1-6D2D5DE8AE1C}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,33 @@
+﻿@page "/"
+@using OrdenesCompra.JPazos.FrontEnd.Services
+@inject SecurityService SecurityService
+
+<h3>Ingrese al Sistema</h3>
+
+<div>
+    <label>Email:</label>
+    <input type="email" @bind="Email" />
+</div>
+
+<div>
+    <label>Clave:</label>
+    <input type="password" @bind="Password" />
+</div>
+
+<button @onclick="SignIn">Ingresar</button>
+
+<p>Eres nuevo? <a href="/signup">Suscribirse</a></p>
+
+@code {
+    private string Email;
+    private string Password;
+
+    private async Task SignIn()
+    {
+        var result = await SecurityService.SignIn(Email, Password);
+        if (!result)
+        {
+            Console.WriteLine("Error al iniciar sesión");
+        }
+    }
+}

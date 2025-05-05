@@ -1,0 +1,7 @@
+Ir a la carpeta del proyecto API () y ejecutar el siguiente comando para crear el modelo de datos:
+
+dotnet ef migrations add InitialCreate --project ../OrdenesCompra.JPazos.infrastructure --startup-project .
+
+
+luego actualizar la base de datos con el siguiente comando:
+dotnet ef database update

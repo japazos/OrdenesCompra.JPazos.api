@@ -1,0 +1,49 @@
+SignUp:
+-------
+http://localhost:5169/api/Security/signUp
+
+{
+  "nombres": "Juan Antonio",
+  "apellidos": "Pazos Saavedra",
+  "email": "japazos@gmail.com",
+  "password": "Jq$4%5^6&7."
+}
+
+SignIn:
+--------
+http://localhost:5169/api/Security/signIn
+
+{
+  "email": "japazos@gmail.com",
+  "password": "Jq$4%5^6&7."
+}
+
+/api/Orde/create:
+----------------
+http://localhost:5169/api/Orden/create
+{
+  "cliente": "San Ignacio de Loyola",
+  "ordenDetalle": [
+    {
+      "producto": "PECI - Finanzas",
+      "cantidad": 35,
+      "precioUnitario": 3500
+    }
+  ]
+}
+
+{
+  "cliente": "San Marcos",
+  "ordenDetalle": [
+    {
+      "producto": "Informatica 1",
+      "cantidad": 10,
+      "precioUnitario": 120
+    },
+    {
+      "producto": "Informatica 2",
+      "cantidad": 15,
+      "precioUnitario": 150
+    }
+  ]
+}
