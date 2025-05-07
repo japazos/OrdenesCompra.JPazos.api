@@ -1,0 +1,163 @@
+﻿@page "/ordenes"
+@using OrdenesCompra.JPazos.FrontEnd.Dto
+@using OrdenesCompra.JPazos.FrontEnd.Services
+@inject OrdenService OrdenService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+
+<PageTitle>Ordenes</PageTitle>
+
+<h1>Ordenes</h1>
+
+<h3>Buscar Órdenes</h3>
+
+<div>
+    <label>Cliente:</label>
+    <input type="text" @bind="Cliente" />
+</div>
+
+<div>
+    <label>Fecha Inicio:</label>
+    <input type="date" @bind="FechaInicio" />
+</div>
+
+<div>
+    <label>Fecha Fin:</label>
+    <input type="date" @bind="FechaFin" />
+</div>
+
+<div>
+    <label>Ordenar Por:</label>
+    <select @bind="OrdenarPor">
+        <option value="FechaCreacion">Fecha Creación</option>
+    </select>
+</div>
+
+<div>
+    <label>Ascendente:</label>
+    <input type="checkbox" @bind="Ascendente" />
+</div>
+
+<div>
+    <label>Página:</label>
+    <input type="number" @bind="Pagina" min="1" />
+</div>
+
+<div>
+    <label>Tamaño Página:</label>
+    <input type="number" @bind="TamanoPagina" min="1" />
+</div>
+
+<button @onclick="BuscarOrdenes">Buscar</button>
+<button @onclick="CrearOrden">Nueva Orden</button>
+
+@if (ordenes != null && ordenes.Any())
+{
+    <h3>Resultados de la Búsqueda</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Fecha Creación</th>
+                <th>Total S/.</th>
+                <th>Ver Detalle</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var orden in ordenes)
+            {
+                <tr>
+                    <td>@orden.Id</td>
+                    <td>@orden.Cliente</td>
+                    <td>@orden.FechaCreacion</td>
+                    <td>@orden.Total</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" @onclick="() => EditarOrden(orden.Id.ToString())">Editar</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @onclick="() => ConfirmarEliminar(orden.Id.ToString())">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (ordenes != null && !ordenes.Any())
+{
+    <p>No se encontraron órdenes con los criterios de búsqueda.</p>
+}
+
+@code {
+    private string? Cliente;
+    private DateTime? FechaInicio;
+    private DateTime? FechaFin;
+    private string OrdenarPor = "FechaCreacion";
+    private bool Ascendente = true;
+    private int Pagina = 1;
+    private int TamanoPagina = 10;
+    private List<OrdenListDto> ordenes = null;
+    private string? token;
+
+    protected override async Task OnInitializedAsync()
+    {
+        token = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+        if (string.IsNullOrEmpty(token))
+        {
+            NavigationManager.NavigateTo("/");
+            return; // Importante detener la ejecución si no hay token
+        }
+    }
+
+    private async Task CrearOrden()
+    {
+        NavigationManager.NavigateTo("/orden/nuevo");
+    }
+    
+    private async Task BuscarOrdenes()
+    {
+        var response = await OrdenService.ListOrdenesAsync(Cliente, FechaInicio, FechaFin, OrdenarPor, Ascendente, Pagina, TamanoPagina, token);
+
+        if (response?.Success == true && response?.Data?.Items != null)
+        {
+            ordenes = response.Data.Items;
+        }
+        else
+        {
+            Console.WriteLine($"Error al buscar órdenes en el servicio: {response?.Message}");
+            ordenes = new List<OrdenListDto>();
+            // Aquí podrías mostrar un mensaje de error al usuario
+        }
+        StateHasChanged();
+    }
+
+    private void EditarOrden(string ordenId)
+    {
+        NavigationManager.NavigateTo($"/orden/editar/{ordenId}");
+    }
+
+    private async Task ConfirmarEliminar(string ordenId)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que deseas eliminar esta orden?"))
+        {
+            await EliminarOrden(ordenId);
+        }
+    }
+
+    private async Task EliminarOrden(string ordenId)
+    {
+        var success = await OrdenService.DeleteOrdenByIdAsync(ordenId, token);
+        if (success)
+        {
+            // Recargar las órdenes después de eliminar
+            await BuscarOrdenes();
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar la orden.");
+        }
+    }
+}

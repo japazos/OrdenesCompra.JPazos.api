@@ -17,6 +17,7 @@ builder.Services.AddScoped<OrdenService>();
 
 // Configurar HttpClient con los handlers personalizados
 builder.Services.AddHttpClient<SecurityService>(client => client.BaseAddress = new Uri(apiBaseUrl));
+builder.Services.AddHttpClient<OrdenService>(client => client.BaseAddress = new Uri(apiBaseUrl));
 
 
 

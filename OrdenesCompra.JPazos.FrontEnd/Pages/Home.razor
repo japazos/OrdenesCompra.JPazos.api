@@ -2,6 +2,8 @@
 @using OrdenesCompra.JPazos.FrontEnd.Services
 @using OrdenesCompra.JPazos.FrontEnd.Dto
 @inject SecurityService SecurityService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 
 <h3>Ingrese al Sistema</h3>
 
@@ -17,24 +19,36 @@
 
 <button @onclick="SignIn">Ingresar</button>
 
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p style="color: red;">@ErrorMessage</p> <!-- Muestra el error original -->
+}
+
+@if (!string.IsNullOrEmpty(SuccessMessage))
+{
+    <p style="color: green;">@SuccessMessage</p>
+}
+
 <p>Eres nuevo? <a href="/signup">Suscribirse</a></p>
 
 @code {
     private string Email;
     private string Password;
+    private string ErrorMessage;
+    private string SuccessMessage;
 
     private async Task SignIn()
     {
-        var signInDto = new SignInDto
-            {
-                Email = Email,
-                Password = Password
-            };
+        var response = await SecurityService.SignIn(new SignInDto { Email = Email, Password = Password });
 
-        var result = await SecurityService.SignIn(signInDto);
-        if (!result)
+        if (response.Success)
         {
-            Console.WriteLine("Error al iniciar sesión");
+            SuccessMessage = response.Message;
+            Navigation.NavigateTo("/ordenes");
+        }
+        else
+        {
+            ErrorMessage = response.Message;
         }
     }
 }
