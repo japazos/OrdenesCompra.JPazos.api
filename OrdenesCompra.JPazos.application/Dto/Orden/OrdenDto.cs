@@ -8,13 +8,13 @@ namespace OrdenesCompra.JPazos.application.Dto.Orden
     public class OrdenCreateDto
     {
         public string Cliente { get; set; } = string.Empty;
-        public ICollection<OrdenDetalleDto> OrdenDetalle { get; set; } = new List<OrdenDetalleDto>();
+        public ICollection<OrdenCreateDetalleDto> OrdenDetalle { get; set; } = new List<OrdenCreateDetalleDto>();
     }
 
     // DTO para obtener los detalles de una orden
     public class OrdenDetailDto
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public string Cliente { get; set; } = string.Empty;
         public DateTime FechaCreacion { get; set; }
         public decimal Total { get; set; }
@@ -24,7 +24,7 @@ namespace OrdenesCompra.JPazos.application.Dto.Orden
     // DTO para listar órdenes con paginación
     public class OrdenListDto
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public string Cliente { get; set; } = string.Empty;
         public DateTime FechaCreacion { get; set; }
         public decimal Total { get; set; }
@@ -32,6 +32,14 @@ namespace OrdenesCompra.JPazos.application.Dto.Orden
 
     // DTO para los detalles de una orden
     public class OrdenDetalleDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Producto { get; set; } = string.Empty;
+        public int Cantidad { get; set; }
+        public decimal PrecioUnitario { get; set; }
+    }
+
+    public class OrdenCreateDetalleDto
     {
         public string Producto { get; set; } = string.Empty;
         public int Cantidad { get; set; }

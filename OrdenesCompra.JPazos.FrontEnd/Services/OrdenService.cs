@@ -68,6 +68,25 @@ namespace OrdenesCompra.JPazos.FrontEnd.Services
             var response = await _httpClient.PostAsJsonAsync("api/Orden/create", orden);
             return response.IsSuccessStatusCode;
         }
+        public async Task<bool> UpdateOrdenAsync(string ordenId, OrdenCreateDto orden, string? token = null)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient.PutAsJsonAsync($"api/Orden/update/{ordenId}", orden);
+            return response.IsSuccessStatusCode;
+        }
+        public async Task<ApiResponse<OrdenDetailDto?>> GetOrdenByIdAsync(string ordenId, string? token = null)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient.GetAsync($"api/Orden/getById/{ordenId}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<ApiResponse<OrdenDetailDto>>();
+            }
+            else
+            {
+                Console.WriteLine($"Error al obtener la orden con ID {ordenId}: {response.StatusCode}");
+                return null;
+            }}
 
         public async Task<bool> DeleteOrdenByIdAsync(string ordenId, string? token = null)
         {

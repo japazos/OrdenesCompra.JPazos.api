@@ -1,19 +1,300 @@
 ﻿@page "/orden/nuevo"
 @page "/orden/editar/{ordenId}"
+@using OrdenesCompra.JPazos.FrontEnd.Dto
+@using OrdenesCompra.JPazos.FrontEnd.Services
+@inject OrdenService OrdenService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>@(string.IsNullOrEmpty(ordenId) ? "Nueva Orden" : $"Editar Orden {ordenId}")</PageTitle>
 
-<h1>Counter</h1>
+<h3>@(string.IsNullOrEmpty(ordenId) ? "Nueva Orden" : $"Editar Orden {ordenId}")</h3>
 
-<p role="status">Current count: @currentCount</p>
+<form @onsubmit="GuardarOrdenManual">
+    <div class="row">
+        @if (!string.IsNullOrEmpty(ordenId))
+        {
+            <div class="col-md-3">
+                <label for="ordenId">ID:</label>
+                <input type="text" id="ordenId" @bind="ordenFormModel.Id" class="form-control" readonly />
+            </div>
+        }
+        <div class="col-md-3">
+            <label for="cliente">Cliente:</label>
+            <input type="text" id="cliente" @bind="ordenFormModel.Cliente" class="form-control" disabled="@(!string.IsNullOrEmpty(ordenId))" />
+        </div>
+        <div class="col-md-3">
+            <label for="fechaCreacion">Fecha Creación:</label>
+            <input type="date" id="fechaCreacion" @bind="ordenFormModel.FechaCreacion" class="form-control" disabled />
+        </div>
+        <div class="col-md-3">
+            <label for="total">Total S/.:</label>
+            <input type="number" id="total" @bind="ordenFormModel.Total" class="form-control" readonly />
+        </div>
+    </div>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+    <hr />
+
+    <h3>Detalle de la Orden</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>OrdenId</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+                @if (!string.IsNullOrEmpty(ordenId))
+                {
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var detalle in ordenFormModel.OrdenDetalle)
+            {
+                @if(editingDetalleId == detalle.Id)
+                {
+                    <tr>
+                        <td>@detalle.Id</td>
+                        <td><input type="text" @bind="detalle.Producto" class="form-control" /></td>
+                        <td><input type="number" @bind="detalle.Cantidad" class="form-control" /></td>
+                        <td><input type="number" @bind="detalle.PrecioUnitario" class="form-control" /></td>
+                        <td>@(detalle.Cantidad * detalle.PrecioUnitario)</td>
+                        <td>
+                            <button type="button" class="btn btn-success btn-sm" @onclick="() => ActualizarDetalle(detalle)">Actualizar</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm" @onclick="() => CancelarEdicionDetalle(detalle)">Cancelar</button>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@detalle.Id</td>
+                        <td>@detalle.Producto</td>
+                        <td>@detalle.Cantidad</td>
+                        <td>@detalle.PrecioUnitario</td>
+                        <td>@(detalle.Cantidad * detalle.PrecioUnitario)</td>
+                        @if (!string.IsNullOrEmpty(ordenId))
+                        {
+                            <td>
+                                <button type="button" class="btn btn-info btn-sm" @onclick="() => EditarDetalle(detalle)">Editar</button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm" @onclick="() => ConfirmarEliminar(detalle)">Eliminar</button>
+                            </td>
+                        }
+                    </tr>
+                }
+            }
+            @if (agregarNuevoDetalle)
+            {
+                <tr>
+                    <td></td>
+                    <td><input type="text" @bind="nuevoDetalle.Producto" class="form-control" /></td>
+                    <td><input type="number" @bind="nuevoDetalle.Cantidad" class="form-control" /></td>
+                    <td><input type="number" @bind="nuevoDetalle.PrecioUnitario" class="form-control" /></td>
+                    <td>@(nuevoDetalle.Cantidad * nuevoDetalle.PrecioUnitario)</td>
+                    <td><button type="button" class="btn btn-success btn-sm" @onclick="AgregarDetalle">Agregar</button></td>
+                    @if (!string.IsNullOrEmpty(ordenId))
+                    {
+                        <td></td>
+                    }
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td colspan="@(string.IsNullOrEmpty(ordenId) ? 5 : 7)">
+                        <button type="button" class="btn btn-secondary btn-sm" @onclick="MostrarAgregarNuevoDetalle">Agregar Registro</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+</form>
 
 @code {
-    private int currentCount = 0;
+    [Parameter]
+    public string? ordenId { get; set; }
 
-    private void IncrementCount()
+    private OrdenDetailDto ordenFormModel = new OrdenDetailDto();
+    private OrdenDetalleDto nuevoDetalle = new OrdenDetalleDto();
+    private List<OrdenDetalleDto> ordenDetalles = new List<OrdenDetalleDto>();
+    private OrdenCreateDto ordenCreateDto = new OrdenCreateDto();
+    private bool agregarNuevoDetalle = false;
+    private string? token;
+    private string? editingDetalleId; // Usamos el Id para rastrear la edición
+
+    protected override async Task OnInitializedAsync()
     {
-        currentCount++;
+        token = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+        if (string.IsNullOrEmpty(token))
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(ordenId))
+        {
+            await CargarOrdenParaEdicion(ordenId);
+        }
+        else
+        {
+            ordenFormModel.FechaCreacion = DateTime.Now;
+        }
+    }
+
+    private async Task CargarOrdenParaEdicion(string id)
+    {
+        var response = await OrdenService.GetOrdenByIdAsync(id, token);
+        if (response?.Success == true && response?.Data != null)
+        {
+            ordenFormModel.Id = response.Data.Id;
+            ordenFormModel.Cliente = response.Data.Cliente;
+            ordenFormModel.FechaCreacion = response.Data.FechaCreacion;
+            ordenFormModel.Total = response.Data.Total;
+
+            // Mapea OrdenDetalleDto a OrdenDetalleCreateDto
+            ordenFormModel.OrdenDetalle = response.Data.OrdenDetalle.Select(d => new OrdenDetalleDto
+                {
+                    Id = d.Id,
+                    Producto = d.Producto,
+                    Cantidad = d.Cantidad,
+                    PrecioUnitario = d.PrecioUnitario
+                }).ToList();
+        }
+        else
+        {
+            Console.WriteLine($"Error al cargar la orden {id} para edición: {response?.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Error al cargar la orden {id}.");
+            NavigationManager.NavigateTo("/ordenes");
+        }
+    }
+
+    private void MostrarAgregarNuevoDetalle()
+    {
+        agregarNuevoDetalle = true;
+        nuevoDetalle = new OrdenDetalleDto();
+    }
+
+    private void AgregarDetalle()
+    {
+        if (!string.IsNullOrEmpty(nuevoDetalle.Producto) && nuevoDetalle.Cantidad > 0 && nuevoDetalle.PrecioUnitario > 0)
+        {
+            ordenFormModel.OrdenDetalle.Add(nuevoDetalle);
+            agregarNuevoDetalle = false;
+            nuevoDetalle = new OrdenDetalleDto(); // Limpiar el formulario de nuevo detalle
+        }
+        else
+        {
+            JSRuntime.InvokeVoidAsync("alert", "Por favor, complete todos los campos del detalle.");
+        }
+    }
+
+    private void EditarDetalle(OrdenDetalleDto detalle)
+    {
+        editingDetalleId = detalle.Id; // Guarda el Id del detalle que se está editando
+    }
+
+    private async Task ConfirmarEliminar(OrdenDetalleDto detalleParaEliminar)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que deseas eliminar esta registro de la orden?"))
+        {
+            EliminarDetalle(detalleParaEliminar);
+        }
+    }
+
+    private void EliminarDetalle(OrdenDetalleDto detalleParaEliminar)
+    {
+        ordenFormModel.OrdenDetalle.Remove(detalleParaEliminar);
+    }
+
+
+    private void CancelarEdicionDetalle(OrdenDetalleDto detalle)
+    {
+        editingDetalleId = null; // Limpia el Id de edición
+    }
+
+    private void ActualizarDetalle(OrdenDetalleDto detalle)
+    {
+        if (!string.IsNullOrEmpty(detalle.Producto) && detalle.Cantidad > 0 && detalle.PrecioUnitario > 0)
+        {
+            OrdenDetalleDto? detalleExistente = ordenFormModel.OrdenDetalle.FirstOrDefault(d => d.Id == detalle.Id);
+            if (detalleExistente != null)
+            {
+                detalleExistente.Producto = detalle.Producto;
+                detalleExistente.Cantidad = detalle.Cantidad;
+                detalleExistente.PrecioUnitario = detalle.PrecioUnitario;
+            }
+            editingDetalleId = null; // Limpia el Id de edición
+        }
+        else
+        {
+            JSRuntime.InvokeVoidAsync("alert", "Por favor, complete todos los campos del detalle.");
+        }
+    }
+
+    private async Task GuardarOrdenManual(EventArgs e)
+    {
+        // Evitar la recarga de la página por el formulario HTML estándar
+        await JSRuntime.InvokeVoidAsync("eval", "event.preventDefault()");
+
+        if (string.IsNullOrEmpty(ordenId))
+        {
+            // Crear nueva orden
+            MapearOrdenFormModel();
+            var response = await OrdenService.CreateOrdenAsync(ordenCreateDto, token);
+            if (response == true)
+            {
+                NavigationManager.NavigateTo("/ordenes");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error al crear la orden");
+            }
+        }
+        else
+        {
+            // Editar orden existente
+            MapearOrdenFormModel();
+            var response = await OrdenService.UpdateOrdenAsync(ordenId, ordenCreateDto, token);
+            if (response == true)
+            {
+                NavigationManager.NavigateTo("/ordenes");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error al actualizar la orden");
+            }
+        }
+    }
+
+    private void Cancelar()
+    {
+        NavigationManager.NavigateTo("/ordenes");
+    }
+
+    private void MapearOrdenFormModel()
+    {
+        ordenCreateDto.Cliente = ordenFormModel.Cliente;
+        // Asegúrate de que ordenCreateDto.OrdenDetalle sea del tipo correcto
+        ordenCreateDto.OrdenDetalle = ordenFormModel.OrdenDetalle
+            .Select(d => new OrdenCreateDetalleDto // Convierte cada elemento al tipo correcto
+                {
+                    Producto = d.Producto,
+                    Cantidad = d.Cantidad,
+                    PrecioUnitario = d.PrecioUnitario
+                })
+            .ToList(); // Convierte el resultado a una lista
     }
 }
+

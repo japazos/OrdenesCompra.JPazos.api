@@ -110,6 +110,10 @@ else if (ordenes != null && !ordenes.Any())
             NavigationManager.NavigateTo("/");
             return; // Importante detener la ejecución si no hay token
         }
+        // Establecer fechas por defecto al inicializar la página
+        FechaInicio = DateTime.Today;
+        FechaFin = DateTime.Today.AddDays(1);
+        await BuscarOrdenes();
     }
 
     private async Task CrearOrden()
@@ -141,7 +145,7 @@ else if (ordenes != null && !ordenes.Any())
 
     private async Task ConfirmarEliminar(string ordenId)
     {
-        if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que deseas eliminar esta orden?"))
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que deseas eliminar esta orden?, Se elimarán tambien sus detalles."))
         {
             await EliminarOrden(ordenId);
         }

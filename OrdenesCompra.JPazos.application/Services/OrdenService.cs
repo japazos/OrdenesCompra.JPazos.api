@@ -35,11 +35,11 @@ namespace OrdenesCompra.JPazos.application.Services
 
             // Calcular el total basado en los detalles
             orden.Total = orden.OrdenDetalle.Sum(d => d.Cantidad * d.PrecioUnitario);
-
+            
             // Asignar la fecha de creación
             orden.FechaCreacion = DateTime.Now;
 
-            _ordenRepository.Add(orden);
+             _ordenRepository.Add(orden);
             await _ordenRepository.Save();
             return true;
         }
